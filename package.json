@@ -1,0 +1,50 @@
+{
+  "name": "is-connected",
+  "version": "0.0.1",
+  "description": "Check whether you are connected to Network or not",
+  "main": "isConnected.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Syed-Umair/is-Connected.git"
+  },
+  "author": "Syed Umair",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Syed-Umair/is-Connected/issues"
+  },
+  "homepage": "https://github.com/Syed-Umair/is-Connected#readme",
+  "scripts": {
+    "test": "jest --forceExit"
+  },
+  "files": [
+    "index.js",
+    "browser.js",
+    "hostnames.js"
+  ],
+  "keywords": [
+    "online",
+    "offline",
+    "is-online",
+    "network",
+    "connected",
+    "connectivity",
+    "internet",
+    "is",
+    "has",
+    "detect",
+    "hostname",
+    "hostnames",
+    "dns",
+    "socket",
+    "reachable",
+    "reachability"
+  ],
+  "dependencies": {
+    "got": "^9.2.1",
+    "p-any": "^1.1.0",
+    "p-timeout": "^2.0.1"
+  },
+  "devDependencies": {
+    "jest": "23.5.0"
+  }
+}
