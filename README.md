@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Syed-Umair/is-Connected.svg?branch=master)](https://travis-ci.org/Syed-Umair/is-Connected)
+
 # is-Connected
 A Node.js Module to check whether you are connected to network or not. Returns a promise resolves to <em>true</em> with network access and to <em>false</em> without network access.
 
