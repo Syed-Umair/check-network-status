@@ -1,6 +1,6 @@
 {
   "name": "is-connected",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Check whether you are connected to Network or not",
   "main": "isConnected.js",
   "repository": {
@@ -17,9 +17,7 @@
     "test": "jest --forceExit"
   },
   "files": [
-    "index.js",
-    "browser.js",
-    "hostnames.js"
+    "index.js"
   ],
   "keywords": [
     "online",

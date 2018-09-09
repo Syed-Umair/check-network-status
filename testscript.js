@@ -1,4 +1,4 @@
-let x = require('./is-connected');
+let { isConnected } = require('./is-connected');
 setInterval(async ()=>{
-    console.log(await x());
-},1000);
+    console.log(await isConnected());
+},5000);
