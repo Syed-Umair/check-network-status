@@ -6,6 +6,8 @@ A Node.js Module to check whether you are connected to network or not. Returns a
     npm install is-Connected
 ```
 
+<strong>Note: <i>Requires Node >= 8.0.0</i></strong>
+
 ## Usage
 
 With Default Options

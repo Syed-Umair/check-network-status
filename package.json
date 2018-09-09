@@ -19,6 +19,9 @@
   "files": [
     "index.js"
   ],
+  "engines": {
+    "node": ">=8"
+  },
   "keywords": [
     "online",
     "offline",
