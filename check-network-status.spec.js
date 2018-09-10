@@ -1,10 +1,10 @@
 const {
-	isConnected,
+	checkNetworkStatus,
 	makeRequest,
 	parseOptions
-} = require('./is-connected');
+} = require('./check-network-status');
 
-describe('Test for is-connected Module', () => {
+describe('Test for check-network-status Module', () => {
 
 	test('makeRequest Method with valid URL', async () => {
 		expect(await makeRequest('https://google.com')).toBeTruthy();
@@ -32,26 +32,26 @@ describe('Test for is-connected Module', () => {
 	});
 
 	test('Default Call', async () => {
-		expect(await isConnected()).toBeTruthy();
+		expect(await checkNetworkStatus()).toBeTruthy();
 	});
 
 	test('Call with timeout option', async () => {
-		expect(await isConnected({
+		expect(await checkNetworkStatus({
 			timeout: 500
 		})).toBeTruthy();
 	});
 
 	test('Call with invalid timeout option', async () => {
-		expect(await isConnected({
+		expect(await checkNetworkStatus({
 			timeout: 1
 		})).toBeFalsy();
 	});
 
 	test('Call with customURL', async () => {
-		expect(await isConnected({
+		expect(await checkNetworkStatus({
 			url: 'https://syedumair.ml'
 		})).toBeTruthy();
-		let urls = require('./is-connected').NETWORK_CHECK_URLS;
+		let urls = require('./check-network-status').NETWORK_CHECK_URLS;
 		expect(urls[urls.length - 1]).toBe('https://syedumair.ml');
 	});
 });

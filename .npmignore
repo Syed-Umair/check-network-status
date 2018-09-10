@@ -1,4 +1,4 @@
 .gitignore
-is-connected.spec.js
+check-network-status.spec.js
 testscript.js
 yarn.lock

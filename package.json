@@ -1,23 +1,23 @@
 {
-  "name": "is-connected",
+  "name": "check-network-status",
   "version": "0.0.2",
   "description": "Check whether you are connected to Network or not",
-  "main": "isConnected.js",
+  "main": "check-network-status.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Syed-Umair/is-Connected.git"
+    "url": "git+https://github.com/Syed-Umair/check-network-status.git"
   },
   "author": "Syed Umair",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Syed-Umair/is-Connected/issues"
+    "url": "https://github.com/Syed-Umair/check-network-status/issues"
   },
-  "homepage": "https://github.com/Syed-Umair/is-Connected#readme",
+  "homepage": "https://github.com/Syed-Umair/check-network-status#readme",
   "scripts": {
     "test": "jest --forceExit"
   },
   "files": [
-    "index.js"
+    "check-network-status.js"
   ],
   "engines": {
     "node": ">=8"

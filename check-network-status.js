@@ -30,7 +30,7 @@ const parseOptions = options => {
 	return opts;
 };
 
-const isConnected = options => {
+const checkNetworkStatus = options => {
 	options = parseOptions(options);
 	const requestArray = pAny(NETWORK_CHECK_URLS.map(url => makeRequest(url)));
 	return pTimeout(requestArray, options.timeout).catch(() => false);
@@ -40,5 +40,5 @@ module.exports = {
 	NETWORK_CHECK_URLS,
 	makeRequest,
 	parseOptions,
-	isConnected
+	checkNetworkStatus
 };
