@@ -1,5 +1,4 @@
 const got = require('got');
-const pAny = require('p-any');
 const pTimeout = require('p-timeout');
 
 const defaults = {
@@ -19,7 +18,13 @@ const NETWORK_CHECK_URLS = [
 ];
 
 const makeRequest = url => {
-	return got(`${url}?_=${Date.now()}`).then(res => res.statusCode === 200 || Promise.reject());
+	return got(`${url}?_=${Date.now()}`).then(res =>{
+		if(res.statusCode >= 200 && res.statusCode < 300 || res.statusCode === 304) {
+			return true;
+		} else {
+			Promise.reject();
+		}
+	});
 };
 
 const parseOptions = options => {
@@ -30,10 +35,17 @@ const parseOptions = options => {
 	return opts;
 };
 
-const checkNetworkStatus = options => {
+const checkNetworkStatus = async (options) => {
 	options = parseOptions(options);
-	const requestArray = pAny(NETWORK_CHECK_URLS.map(url => makeRequest(url)));
-	return pTimeout(requestArray, options.timeout).catch(() => false);
+	for (let url of NETWORK_CHECK_URLS) {
+		try{
+			await pTimeout(makeRequest(url), options.timeout);
+			return true;
+		} catch (e) {
+			continue;
+		}
+	}
+	return false;
 };
 
 module.exports = {
