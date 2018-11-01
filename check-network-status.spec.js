@@ -16,7 +16,7 @@ describe('Test for check-network-status Module', () => {
 
 	test('parseOptions method without options', () => {
 		expect(parseOptions()).toEqual({
-			timeout: 5000,
+			timeout: 4500,
 			url: null
 		});
 	});
