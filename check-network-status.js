@@ -2,7 +2,7 @@ const got = require('got');
 const pTimeout = require('p-timeout');
 
 const defaults = {
-	timeout: 5000,
+	timeout: 4500,
 	url: null
 };
 
