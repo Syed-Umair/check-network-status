@@ -1,6 +1,6 @@
 {
   "name": "check-network-status",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Check whether you are connected to Network or not",
   "main": "check-network-status.js",
   "repository": {
@@ -41,10 +41,10 @@
     "reachability"
   ],
   "dependencies": {
-    "got": "9.2.1",
+    "got": "9.3.2",
     "p-timeout": "2.0.1"
   },
   "devDependencies": {
-    "jest": "23.5.0"
+    "jest": "23.6.0"
   }
 }

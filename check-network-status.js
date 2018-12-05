@@ -7,14 +7,13 @@ const defaults = {
 };
 
 const NETWORK_CHECK_URLS = [
-	'https://ifconfig.co/json',
-	'https://httpbin.org/ip',
-	'https://bot.whatismyipaddress.com/',
-	'https://icanhazip.com/',
 	'https://ipinfo.io/ip',
+	'https://ifconfig.co/json',
+	'https://icanhazip.com/',
+	'https://bot.whatismyipaddress.com/',
+	'https://httpbin.org/ip',
 	'https://tnx.nl/ip',
-	'https://extreme-ip-lookup.com/json',
-	'https://nyxi.eu/ip/'
+	'https://extreme-ip-lookup.com/json'
 ];
 
 const makeRequest = url => {
@@ -28,7 +27,10 @@ const makeRequest = url => {
 };
 
 const parseOptions = options => {
-	let opts = Object.assign({}, defaults, options);
+	let opts = {
+		...defaults,
+		...options
+	};
 	if (opts.url && typeof opts.url === 'string') {
 		NETWORK_CHECK_URLS.push(opts.url);
 	}
@@ -39,9 +41,11 @@ const checkNetworkStatus = async (options) => {
 	options = parseOptions(options);
 	for (let url of NETWORK_CHECK_URLS) {
 		try{
+			// console.log('URL:', url);
 			await pTimeout(makeRequest(url), options.timeout);
 			return true;
 		} catch (e) {
+			// console.error('Error with URL:', url, e);
 			continue;
 		}
 	}
