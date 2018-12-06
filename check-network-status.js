@@ -1,4 +1,4 @@
-const got = require('got');
+const https = require('https');
 const pTimeout = require('p-timeout');
 
 const defaults = {
@@ -17,12 +17,16 @@ const NETWORK_CHECK_URLS = [
 ];
 
 const makeRequest = url => {
-	return got(`${url}?_=${Date.now()}`).then(res =>{
-		if(res.statusCode >= 200 && res.statusCode < 300 || res.statusCode === 304) {
-			return true;
-		} else {
-			Promise.reject();
-		}
+	return new Promise((resolve, reject)=> {
+		https.get(`${url}?_=${Date.now()}`, res => {
+			if(res.statusCode >= 200 && res.statusCode < 400) {
+				resolve(true);
+			} else {
+				reject(new Error("Request Failed..."));
+			}
+		}).on('error', (e) => {
+			reject(new Error("Request Failed..."));
+		});
 	});
 };
 
