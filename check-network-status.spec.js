@@ -1,10 +1,16 @@
 const {
 	checkNetworkStatus,
 	makeRequest,
-	parseOptions
+	parseOptions,
+	getRandomURL,
+	NETWORK_CHECK_URLS
 } = require('./check-network-status');
 
 describe('Test for check-network-status Module', () => {
+
+	test('getRandomURL Method should return a valid URL', () => {
+		expect(NETWORK_CHECK_URLS.includes(getRandomURL())).toBeTruthy();
+	})
 
 	test('makeRequest Method with valid URL', async () => {
 		expect(await makeRequest('https://google.com')).toBeTruthy();
@@ -16,7 +22,7 @@ describe('Test for check-network-status Module', () => {
 
 	test('parseOptions method without options', () => {
 		expect(parseOptions()).toEqual({
-			timeout: 4500,
+			timeout: 3000,
 			url: null
 		});
 	});
@@ -37,7 +43,7 @@ describe('Test for check-network-status Module', () => {
 
 	test('Call with timeout option', async () => {
 		expect(await checkNetworkStatus({
-			timeout: 500
+			timeout: 2000
 		})).toBeTruthy();
 	});
 
