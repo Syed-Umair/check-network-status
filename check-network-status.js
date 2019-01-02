@@ -1,6 +1,5 @@
 const http = require('http');
 const https = require('https');
-const pTimeout = require('p-timeout');
 const URL = require('url');
 
 const defaults = {
