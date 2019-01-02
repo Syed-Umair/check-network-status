@@ -12,11 +12,11 @@ describe('Test for check-network-status Module', () => {
 	});
 
 	test('makeRequest Method with valid URL', async () => {
-		expect(await makeRequest('https://google.com')).toBeTruthy();
+		expect(await makeRequest('https://google.com', 4500)).toBeTruthy();
 	});
 
 	test('makeRequest Method with invalid URL', async () => {
-		await expect(makeRequest('https://google.com/test/1/2/3')).rejects.toThrow();
+		await expect(makeRequest('https://google.com/test/1/2/3', 4500)).rejects.toThrow();
 	});
 
 	test('checkReachability method without parameters', () => {

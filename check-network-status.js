@@ -10,16 +10,20 @@ const defaults = {
 
 const NETWORK_CHECK_URL = "http://clients3.google.com/generate_204";
 
-const makeRequest = (url) => {
-	if(url) {
+const makeRequest = (url, timeout) => {
+	if(url && timeout) {
 		return new Promise((resolve, reject)=> {
+			setTimeout(() => {
+				req && req.abort && req.abort();
+				reject(new Error(`Request Timed out ${timeout}ms`));
+			}, timeout)
 			let _request = http.request;
 			let options = URL.parse(`${url}?_=${Date.now()}`);
 			options.method = 'HEAD';
 			if(options.protocol && options.protocol.includes('https')) {
 				_request = https.request;
 			}
-			let req = _request(options, res => {
+			var req = _request(options, res => {
 				console.log(`Response Status Code: ${res.statusCode}`);
 				if(res.statusCode >= 200 && res.statusCode < 400) {
 					resolve(true);
@@ -40,7 +44,7 @@ const makeRequest = (url) => {
 const checkReachability = async (url, timeout) => {
 	if(url && timeout) {
 		try {
-			return await pTimeout(makeRequest(url), timeout, `Request Timed Out: ${url}`);
+			return await makeRequest(url, timeout);
 		} catch (e) {
 			console.error(`Error with ${url}: ${e.message}`);
 			return false;

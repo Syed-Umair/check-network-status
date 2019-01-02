@@ -1,6 +1,6 @@
 let { checkNetworkStatus } = require('./check-network-status');
 setInterval(async ()=>{
     console.time("Check");
-    console.log(await checkNetworkStatus());
+    console.log(await checkNetworkStatus({timeout: 20}));
     console.timeEnd("Check");
 },5000);
