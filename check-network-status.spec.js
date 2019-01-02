@@ -1,16 +1,15 @@
 const {
 	checkNetworkStatus,
 	makeRequest,
-	parseOptions,
-	getRandomURL,
-	NETWORK_CHECK_URLS
+	checkReachability
 } = require('./check-network-status');
 
 describe('Test for check-network-status Module', () => {
 
-	test('getRandomURL Method should return a valid URL', () => {
-		expect(NETWORK_CHECK_URLS.includes(getRandomURL())).toBeTruthy();
-	})
+
+	test('makeRequest method without parameters', () => {
+        expect(makeRequest).toThrowError();
+	});
 
 	test('makeRequest Method with valid URL', async () => {
 		expect(await makeRequest('https://google.com')).toBeTruthy();
@@ -20,29 +19,21 @@ describe('Test for check-network-status Module', () => {
 		await expect(makeRequest('https://google.com/test/1/2/3')).rejects.toThrow();
 	});
 
-	test('parseOptions method without options', () => {
-		expect(parseOptions()).toEqual({
-			timeout: 3000,
-			url: null
-		});
-	});
+	test('checkReachability method without parameters', () => {
+        expect(checkReachability).rejects;
+    });
 
-	test('parseOptions method with options', () => {
-		expect(parseOptions({
-			timeout: 4000,
-			url: 'https://test.com'
-		})).toEqual({
-			timeout: 4000,
-			url: 'https://test.com'
-		});
-	});
+    test('checkReachability method with valid parameters', async () => {
+        expect(await checkReachability('https://google.com', 2000)).toBeTruthy();
+    });
 
 	test('Default Call', async () => {
 		expect(await checkNetworkStatus()).toBeTruthy();
 	});
 
-	test('Call with timeout option', async () => {
+	test('Call with valid options', async () => {
 		expect(await checkNetworkStatus({
+			url: 'https://syed-umair.github.io',
 			timeout: 2000
 		})).toBeTruthy();
 	});
@@ -53,11 +44,4 @@ describe('Test for check-network-status Module', () => {
 		})).toBeFalsy();
 	});
 
-	test('Call with customURL', async () => {
-		expect(await checkNetworkStatus({
-			url: 'https://syedumair.ml'
-		})).toBeTruthy();
-		let urls = require('./check-network-status').NETWORK_CHECK_URLS;
-		expect(urls[urls.length - 1]).toBe('https://syedumair.ml');
-	});
 });

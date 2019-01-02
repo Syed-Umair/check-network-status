@@ -1,82 +1,69 @@
+const http = require('http');
 const https = require('https');
 const pTimeout = require('p-timeout');
 const URL = require('url');
 
 const defaults = {
-	timeout: 3000,
+	timeout: 3500,
 	url: null
 };
 
-const NETWORK_CHECK_URLS = [
-	'https://google.com',
-	// 'https://facebook.com',
-	'https://example.com',
-	// 'https://httpbin.org',
-	'https://github.com',
-	// 'https://microsoft.com'
-	// 'https://ipinfo.io/ip',
-	// 'https://ifconfig.co/json',
-	'https://icanhazip.com/',
-	'https://bot.whatismyipaddress.com/',
-	'https://httpbin.org/get',
-	// 'https://tnx.nl/ip',
-	// 'https://extreme-ip-lookup.com/json'
-];
+const NETWORK_CHECK_URL = "http://clients3.google.com/generate_204";
 
-const getRandomURL = () => {
-	let max = NETWORK_CHECK_URLS.length - 1;
-	let min = 0;
-	let random = Math.floor(Math.random()*(max-min+1)+min);
-	return NETWORK_CHECK_URLS[random];
-}
-
-const makeRequest = url => {
-	return new Promise((resolve, reject)=> {
-		let options = URL.parse(`${url}?_=${Date.now()}`);
-		options.method = 'HEAD';
-		let req = https.request(options, res => {
-			console.log(res.statusCode);
-			if(res.statusCode >= 200 && res.statusCode < 400) {
-				resolve(true);
-			} else {
-				reject(new Error("Request Failed..."));
+const makeRequest = (url) => {
+	if(url) {
+		return new Promise((resolve, reject)=> {
+			let _request = http.request;
+			let options = URL.parse(`${url}?_=${Date.now()}`);
+			options.method = 'HEAD';
+			if(options.protocol && options.protocol.includes('https')) {
+				_request = https.request;
 			}
-		}).on('error', (e) => {
-			console.error('error=>', e.message);
-			reject(new Error("Request Failed..."));
+			let req = _request(options, res => {
+				console.log(`Response Status Code: ${res.statusCode}`);
+				if(res.statusCode >= 200 && res.statusCode < 400) {
+					resolve(true);
+				} else {
+					reject(new Error("Request Failed..."));
+				}
+			}).on('error', (e) => {
+				console.error(`error=> ${e.message}`);
+				reject(new Error("Request Failed..."));
+			});
+			req.end();
 		});
-		req.end();
-	});
+	} else {
+		throw new Error("Invalid Parameters");
+	}
 };
 
-const parseOptions = options => {
-	let opts = {
+const checkReachability = async (url, timeout) => {
+	if(url && timeout) {
+		try {
+			return await pTimeout(makeRequest(url), timeout, `Request Timed Out: ${url}`);
+		} catch (e) {
+			console.error(`Error with ${url}: ${e.message}`);
+			return false;
+		}
+	} else {
+		throw new Error("Invalid Parameters");
+	}
+}
+
+const checkNetworkStatus = async (options) => {
+	options = {
 		...defaults,
 		...options
 	};
-	if (opts.url && typeof opts.url === 'string') {
-		NETWORK_CHECK_URLS.push(opts.url);
+	let response = await checkReachability(NETWORK_CHECK_URL, options.timeout);
+	if (!response && options.url) {
+		response = await checkReachability(options.host, options.timeout);
 	}
-	return opts;
-};
-
-const checkNetworkStatus = async (options) => {
-	options = parseOptions(options);
-		try{
-			var url = getRandomURL();
-			console.log('URL:', url);
-			await pTimeout(makeRequest(url), options.timeout);
-			return true;
-		} catch (e) {
-			console.error('Error with URL:', url, e);
-			return false;
-		}
+	return response;
 };
 
 module.exports = {
-	NETWORK_CHECK_URLS,
 	makeRequest,
-	parseOptions,
-	checkNetworkStatus,
-	getRandomURL
+	checkReachability,
+	checkNetworkStatus
 };
