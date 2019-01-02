@@ -4,7 +4,7 @@ const pTimeout = require('p-timeout');
 const URL = require('url');
 
 const defaults = {
-	timeout: 3500,
+	timeout: 4500,
 	url: null
 };
 
@@ -57,7 +57,7 @@ const checkNetworkStatus = async (options) => {
 	};
 	let response = await checkReachability(NETWORK_CHECK_URL, options.timeout);
 	if (!response && options.url) {
-		response = await checkReachability(options.host, options.timeout);
+		response = await checkReachability(options.url, options.timeout);
 	}
 	return response;
 };
