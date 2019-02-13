@@ -4,24 +4,49 @@ const URL = require('url');
 
 const defaults = {
 	timeout: 4500,
-	url: null
+	backUpURL: null,
+	pingDomain: 'google.com',
+	method: 'GET'
 };
 
-const NETWORK_CHECK_URL = "http://clients3.google.com/generate_204";
+const getNetworkCheckURL = (pingDomain) => {
+	if(pingDomain && typeof pingDomain === 'string') {
+		return `https://cloudflare-dns.com/dns-query?name=${pingDomain}&type=A&_=${Date.now()}`
+	} else {
+		throw new Error("Invalid Parameters");
+	}
+};
 
-const makeRequest = (url, timeout) => {
-	if(url && timeout) {
+const makeRequest = (url, timeout, method) => {
+	if(url && timeout && method) {
 		return new Promise((resolve, reject)=> {
+
 			setTimeout(() => {
 				req && req.abort && req.abort();
 				reject(new Error(`Request Timed out ${timeout}ms`));
 			}, timeout)
+
+
 			let _request = http.request;
-			let options = URL.parse(`${url}?_=${Date.now()}`);
-			options.method = 'HEAD';
+			let options = URL.parse(url);
+
 			if(options.protocol && options.protocol.includes('https')) {
 				_request = https.request;
 			}
+
+			options.headers = {
+				'Cache-Control':'no-cache'
+			}
+
+			options.method = method;
+
+			if (url.includes('https://cloudflare-dns.com/dns-query')) {
+				options.headers = {
+					...options.headers,
+					accept: 'application/dns-json',
+				}
+			}
+
 			var req = _request(options, res => {
 				console.log(`Response Status Code: ${res.statusCode}`);
 				if(res.statusCode >= 200 && res.statusCode < 400) {
@@ -33,17 +58,19 @@ const makeRequest = (url, timeout) => {
 				console.error(`error=> ${e.message}`);
 				reject(new Error("Request Failed..."));
 			});
+
 			req.end();
+
 		});
 	} else {
 		throw new Error("Invalid Parameters");
 	}
 };
 
-const checkReachability = async (url, timeout) => {
-	if(url && timeout) {
+const checkReachability = async (url, timeout, method) => {
+	if(url && timeout && method) {
 		try {
-			return await makeRequest(url, timeout);
+			return await makeRequest(url, timeout, method);
 		} catch (e) {
 			console.error(`Error with ${url}: ${e.message}`);
 			return false;
@@ -58,9 +85,12 @@ const checkNetworkStatus = async (options) => {
 		...defaults,
 		...options
 	};
-	let response = await checkReachability(NETWORK_CHECK_URL, options.timeout);
+
+	const NETWORK_CHECK_URL = getNetworkCheckURL(options.pingDomain);
+
+	let response = await checkReachability(NETWORK_CHECK_URL, options.timeout, defaults.method);
 	if (!response && options.url) {
-		response = await checkReachability(options.url, options.timeout);
+		response = await checkReachability(options.backUpURL, options.timeout, method);
 	}
 	return response;
 };
@@ -68,5 +98,6 @@ const checkNetworkStatus = async (options) => {
 module.exports = {
 	makeRequest,
 	checkReachability,
-	checkNetworkStatus
+	checkNetworkStatus,
+	getNetworkCheckURL
 };

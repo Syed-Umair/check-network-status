@@ -17,6 +17,15 @@ A Node.js Module to check whether you are connected to network or not. Returns a
 With Default Options
 
 ```javascript
+{
+    timeout: 4500,
+    backUpURL: null,
+    pingDomain: 'google.com',
+    method: 'GET'
+}
+```
+
+```javascript
     const { checkNetworkStatus } = require('check-network-status');
     checkNetworkStatus().then(value => console.log(value));
     // prints 'true' or 'false' depending on networking connectivity
@@ -31,7 +40,19 @@ With Options
     const { checkNetworkStatus } = require('check-network-status');
     checkNetworkStatus({
         timeout: 3000,
-        url: 'https://example.com'
+        backUpURL: 'https://example.com',
+        pingDomain: 'github.com',
+        method: 'GET'
     }).then(value => console.log(value));
     // prints 'true' or 'false' depending on networking connectivity
 ```
+
+## ChangeLog
+
+v1.1.3 -> v1.2.0 breaking changes include
+
+Renamed option `url` to `backUpURL`
+
+Added option `method` that accepts HTTP methods to be used while requesting `backUpURL`. It defaults to `GET`.
+
+We updated the network check API to [cloudflare DNS query API](https://developers.cloudflare.com/1.1.1.1/dns-over-https/request-structure/), you need to pass the pingDomain option if you don't want to use default value google.com
