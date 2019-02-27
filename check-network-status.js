@@ -89,8 +89,8 @@ const checkNetworkStatus = async (options) => {
 	const NETWORK_CHECK_URL = getNetworkCheckURL(options.pingDomain);
 
 	let response = await checkReachability(NETWORK_CHECK_URL, options.timeout, defaults.method);
-	if (!response && options.url) {
-		response = await checkReachability(options.backUpURL, options.timeout, method);
+	if (!response && options.backUpURL) {
+		response = await checkReachability(options.backUpURL, options.timeout, options.method);
 	}
 	return response;
 };

@@ -1,6 +1,6 @@
 {
   "name": "check-network-status",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "description": "Check whether you are connected to Network or not",
   "main": "check-network-status.js",
   "repository": {
