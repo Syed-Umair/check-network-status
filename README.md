@@ -49,6 +49,7 @@ With Options
 
 ## ChangeLog
 v1.2.0 -> v1.2.3 includes following changes
+- fixes unhandled timeout error
 - stopped printing debug logs
 ------
 v1.1.3 -> v1.2.0 breaking changes include

@@ -22,7 +22,7 @@ const makeRequest = (url, timeout, method) => {
 	if(url && timeout && method) {
 		return new Promise((resolve, reject)=> {
 
-			setTimeout(() => {
+			let timerID = setTimeout(() => {
 				req && req.abort && req.abort();
 				reject(new Error(`Request Timed out ${timeout}ms`));
 			}, timeout)
@@ -54,11 +54,12 @@ const makeRequest = (url, timeout, method) => {
 					resolve(true);
 				} else {
 					reject(new Error("Request Failed..."));
-				}
+                }
+                clearTimeout(timerID);
 			}).on('error', (e) => {
 				debug(`error=> ${e.message}`);
-				console.error(`error=> ${e.message}`);
-				reject(new Error("Request Failed..."));
+                reject(new Error("Request Failed..."));
+                clearTimeout(timerID);
 			});
 
 			req.end();
