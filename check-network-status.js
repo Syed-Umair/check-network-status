@@ -1,6 +1,7 @@
 const http = require('http');
 const https = require('https');
 const URL = require('url');
+const debug = require('debug')('check-network-status');
 
 const defaults = {
 	timeout: 4500,
@@ -48,13 +49,14 @@ const makeRequest = (url, timeout, method) => {
 			}
 
 			var req = _request(options, res => {
-				console.log(`Response Status Code: ${res.statusCode}`);
+				debug(`Response Status Code: ${res.statusCode}`);
 				if(res.statusCode >= 200 && res.statusCode < 400) {
 					resolve(true);
 				} else {
 					reject(new Error("Request Failed..."));
 				}
 			}).on('error', (e) => {
+				debug(`error=> ${e.message}`);
 				console.error(`error=> ${e.message}`);
 				reject(new Error("Request Failed..."));
 			});
@@ -72,7 +74,7 @@ const checkReachability = async (url, timeout, method) => {
 		try {
 			return await makeRequest(url, timeout, method);
 		} catch (e) {
-			console.error(`Error with ${url}: ${e.message}`);
+			debug(`Error with ${url}: ${e.message}`);
 			return false;
 		}
 	} else {

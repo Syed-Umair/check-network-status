@@ -48,7 +48,9 @@ With Options
 ```
 
 ## ChangeLog
-
+v1.2.0 -> v1.2.3 includes following changes
+- stopped printing debug logs
+------
 v1.1.3 -> v1.2.0 breaking changes include
 
 Renamed option `url` to `backUpURL`

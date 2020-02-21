@@ -1,6 +1,6 @@
 {
   "name": "check-network-status",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Check whether you are connected to Network or not",
   "main": "check-network-status.js",
   "repository": {
@@ -14,7 +14,7 @@
   },
   "homepage": "https://github.com/Syed-Umair/check-network-status#readme",
   "scripts": {
-    "test": "jest --forceExit"
+    "test": "jest"
   },
   "files": [
     "check-network-status.js"
@@ -41,9 +41,12 @@
     "reachability"
   ],
   "devDependencies": {
-    "jest": "24.9.0"
+    "jest": "25.1.0"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/@Syed-Umair"
+  },
+  "dependencies": {
+    "debug": "^4.1.1"
   }
 }
