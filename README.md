@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Syed-Umair/check-network-status.svg?branch=master)](https://travis-ci.org/Syed-Umair/check-network-status)
+![Build](https://github.com/Syed-Umair/check-network-status/workflows/Run%20Tests/badge.svg?branch=master)
 [![GitHub license](https://img.shields.io/github/license/Syed-Umair/check-network-status.svg)](https://github.com/Syed-Umair/check-network-status/blob/master/LICENSE)
 [![Twitter](https://img.shields.io/twitter/url/https/github.com/Syed-Umair/check-network-status.svg?style=social)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2FSyed-Umair%2Fcheck-network-status)
 
