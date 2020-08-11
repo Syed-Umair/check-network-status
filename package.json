@@ -41,7 +41,7 @@
     "reachability"
   ],
   "devDependencies": {
-    "jest": "25.1.0"
+    "jest": "26.3.0"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/@Syed-Umair"
