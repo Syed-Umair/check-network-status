@@ -1,7 +1,7 @@
 const debug = require('debug')('check-network-status');
 
 const defaults = {
-  timeout: 4500,
+  timeout: 3350,
   backUpURL: null,
   pingDomain: 'google.com',
   method: 'GET'
@@ -33,7 +33,7 @@ const makeRequest = async (url, timeout = 3350, method = 'GET') => {
     }
 
     const response = await fetch(url, {
-      method: 'GET',
+      method,
       headers,
       signal: controller.signal
     });
