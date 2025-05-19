@@ -15,7 +15,7 @@ const getNetworkCheckURL = (pingDomain) => {
   }
 };
 
-const makeRequest = async (url, timeout = 4500, method = 'GET') => {
+const makeRequest = async (url, timeout = 3350, method = 'GET') => {
   if (!url || !timeout || !method) throw new Error("Invalid Parameters");
 
   const controller = new AbortController();
