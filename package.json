@@ -45,6 +45,6 @@
     "jest-fetch-mock": "^3.0.3"
   },
   "dependencies": {
-    "debug": "4.2.0"
+    "debug": "4.4.1"
   }
 }
