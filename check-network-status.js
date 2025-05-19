@@ -1,106 +1,78 @@
-const http = require('http');
-const https = require('https');
-const URL = require('url');
 const debug = require('debug')('check-network-status');
 
 const defaults = {
-	timeout: 4500,
-	backUpURL: null,
-	pingDomain: 'google.com',
-	method: 'GET'
+  timeout: 4500,
+  backUpURL: null,
+  pingDomain: 'google.com',
+  method: 'GET'
 };
 
 const getNetworkCheckURL = (pingDomain) => {
-	if(pingDomain && typeof pingDomain === 'string') {
-		return `https://cloudflare-dns.com/dns-query?name=${pingDomain}&type=A&_=${Date.now()}`
-	} else {
-		throw new Error("Invalid Parameters");
-	}
+  if (typeof pingDomain === 'string' && pingDomain.trim()) {
+    return `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(pingDomain)}&type=A&_=${Date.now()}`;
+  } else {
+    throw new Error("Invalid pingDomain parameter");
+  }
 };
 
-const makeRequest = (url, timeout, method) => {
-	if(url && timeout && method) {
-		return new Promise((resolve, reject)=> {
+const makeRequest = async (url, timeout = 4500, method = 'GET') => {
+  if (!url || !timeout || !method) throw new Error("Invalid Parameters");
 
-			let timerID = setTimeout(() => {
-				req && req.abort && req.abort();
-				reject(new Error(`Request Timed out ${timeout}ms`));
-			}, timeout)
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
 
+  try {
+    const headers = {
+      'Cache-Control': 'no-cache'
+    };
 
-			let _request = http.request;
-			let options = URL.parse(url);
+    if (url.includes('cloudflare-dns.com/dns-query')) {
+      headers['Accept'] = 'application/dns-json';
+      headers['Content-Type'] = 'application/dns-json';
 
-			if(options.protocol && options.protocol.includes('https')) {
-				_request = https.request;
-			}
+    }
 
-			options.headers = {
-				'Cache-Control':'no-cache'
-			}
+    const response = await fetch(url, {
+      method: 'GET',
+      headers,
+      signal: controller.signal
+    });
 
-			options.method = method;
+    debug(`Response Status Code: ${response.status}`);
+    if (response.ok) {
+      return true;
+    } else {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
 
-			if (url.includes('https://cloudflare-dns.com/dns-query')) {
-				options.headers = {
-					...options.headers,
-					accept: 'application/dns-json',
-				}
-			}
-
-			var req = _request(options, res => {
-				debug(`Response Status Code: ${res.statusCode}`);
-				if(res.statusCode >= 200 && res.statusCode < 400) {
-					resolve(true);
-				} else {
-					reject(new Error("Request Failed..."));
-                }
-                clearTimeout(timerID);
-			}).on('error', (e) => {
-				debug(`error=> ${e.message}`);
-                reject(new Error("Request Failed..."));
-                clearTimeout(timerID);
-			});
-
-			req.end();
-
-		});
-	} else {
-		throw new Error("Invalid Parameters");
-	}
+  } catch (err) {
+    debug(`Error for URL ${url}: ${err.message}`);
+    return false;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 };
 
 const checkReachability = async (url, timeout, method) => {
-	if(url && timeout && method) {
-		try {
-			return await makeRequest(url, timeout, method);
-		} catch (e) {
-			debug(`Error with ${url}: ${e.message}`);
-			return false;
-		}
-	} else {
-		throw new Error("Invalid Parameters");
-	}
-}
+  return await makeRequest(url, timeout, method);
+};
 
-const checkNetworkStatus = async (options) => {
-	options = {
-		...defaults,
-		...options
-	};
+const checkNetworkStatus = async (options = {}) => {
+  options = { ...defaults, ...options };
 
-	const NETWORK_CHECK_URL = getNetworkCheckURL(options.pingDomain);
+  const checkURL = getNetworkCheckURL(options.pingDomain);
+  let isReachable = await checkReachability(checkURL, options.timeout, options.method);
 
-	let response = await checkReachability(NETWORK_CHECK_URL, options.timeout, defaults.method);
-	if (!response && options.backUpURL) {
-		response = await checkReachability(options.backUpURL, options.timeout, options.method);
-	}
-	return response;
+  if (!isReachable && options.backUpURL) {
+    isReachable = await checkReachability(options.backUpURL, options.timeout, options.method);
+  }
+
+  return isReachable;
 };
 
 module.exports = {
-	makeRequest,
-	checkReachability,
-	checkNetworkStatus,
-	getNetworkCheckURL
+  makeRequest,
+  checkReachability,
+  checkNetworkStatus,
+  getNetworkCheckURL
 };
