@@ -1,62 +1,92 @@
 const {
-	checkNetworkStatus,
-	makeRequest,
-	checkReachability,
-	getNetworkCheckURL
+  makeRequest,
+  checkReachability,
+  checkNetworkStatus,
+  getNetworkCheckURL
 } = require('./check-network-status');
+require('jest-fetch-mock').enableMocks();
 
-describe('Test for check-network-status Module', () => {
 
-	test('getNetworkCheckURL method without parameter', () => {
-		expect(getNetworkCheckURL).toThrowError();
-	})
+describe('check-network-status module', () => {
+  beforeEach(() => {
+    fetch.resetMocks();
+  });
 
-	test('getNetworkCheckURL method with invalid parameter', () => {
-		expect(getNetworkCheckURL.bind(null,1234567)).toThrowError();
-	})
-
-	test('getNetworkCheckURL method with valid pingDomain', () => {
-		expect(getNetworkCheckURL('github.com')
-			.includes('https://cloudflare-dns.com/dns-query?name=github.com&type=A')
-		).toBeTruthy();
-	})
-
-	test('makeRequest method without parameters', () => {
-        expect(makeRequest).toThrowError();
-	});
-
-	test('makeRequest Method with valid URL', async () => {
-		expect(await makeRequest('https://google.com', 4500, 'HEAD')).toBeTruthy();
-	});
-
-	test('makeRequest Method with invalid URL', async () => {
-		await expect(makeRequest('https://google.com/test/1/2/3', 4500, 'HEAD')).rejects.toThrow();
-	});
-
-	test('checkReachability method without parameters', () => {
-        expect(checkReachability).rejects;
+  describe('getNetworkCheckURL', () => {
+    it('should return a valid Cloudflare DNS URL', () => {
+      const url = getNetworkCheckURL('example.com');
+      expect(url).toMatch(/^https:\/\/cloudflare-dns\.com\/dns-query\?name=example\.com&type=A&_=\d+$/);
     });
 
-    test('checkReachability method with valid parameters', async () => {
-        expect(await checkReachability('https://google.com', 2000, 'HEAD')).toBeTruthy();
+    it('should throw error on invalid domain', () => {
+      expect(() => getNetworkCheckURL('')).toThrow('Invalid pingDomain parameter');
+      expect(() => getNetworkCheckURL(null)).toThrow('Invalid pingDomain parameter');
+    });
+  });
+
+  describe('makeRequest', () => {
+    it('should return true on successful fetch', async () => {
+      fetch.mockResponseOnce('', { status: 200 });
+      const result = await makeRequest('https://example.com', 1000, 'GET');
+      expect(result).toBe(true);
     });
 
-	test('Default Call', async () => {
-		expect(await checkNetworkStatus()).toBeTruthy();
-	});
+    it('should return false on non-2xx response', async () => {
+      fetch.mockResponseOnce('', { status: 500 });
+      const result = await makeRequest('https://example.com', 1000, 'GET');
+      expect(result).toBe(false);
+    });
 
-	test('Call with valid options', async () => {
-		expect(await checkNetworkStatus({
-			backUpURL: 'https://syed-umair.github.io',
-			pingDomain: 'github.com',
-			timeout: 2000
-		})).toBeTruthy();
-	});
+    it('should return false on fetch error (e.g., timeout)', async () => {
+      fetch.mockReject(new Error('Network failure'));
+      const result = await makeRequest('https://example.com', 1000, 'GET');
+      expect(result).toBe(false);
+    });
 
-	test('Call with invalid timeout option', async () => {
-		expect(await checkNetworkStatus({
-			timeout: 1
-		})).toBeFalsy();
-	});
+    it('should throw on missing parameters', async () => {
+      await expect(makeRequest()).rejects.toThrow('Invalid Parameters');
+    });
+  });
 
+  describe('checkReachability', () => {
+    it('should delegate to makeRequest and return result', async () => {
+      fetch.mockResponseOnce('', { status: 200 });
+      const result = await checkReachability('https://example.com', 1000, 'GET');
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('checkNetworkStatus', () => {
+    it('should return true if primary DNS check succeeds', async () => {
+      fetch.mockResponseOnce('', { status: 200 });
+      const result = await checkNetworkStatus();
+      expect(result).toBe(true);
+    });
+
+    it('should fallback to backup URL if primary fails', async () => {
+      fetch
+        .mockRejectOnce(new Error('Primary fail')) // Primary fails
+        .mockResponseOnce('', { status: 200 });     // Backup succeeds
+
+      const result = await checkNetworkStatus({
+        backUpURL: 'https://backup.com'
+      });
+
+      expect(result).toBe(true);
+      expect(fetch.mock.calls[0][0]).toContain('cloudflare-dns.com');
+      expect(fetch.mock.calls[1][0]).toBe('https://backup.com');
+    });
+
+    it('should return false if both primary and backup fail', async () => {
+      fetch
+        .mockRejectOnce(new Error('Primary fail'))
+        .mockRejectOnce(new Error('Backup fail'));
+
+      const result = await checkNetworkStatus({
+        backUpURL: 'https://backup.com'
+      });
+
+      expect(result).toBe(false);
+    });
+  });
 });
