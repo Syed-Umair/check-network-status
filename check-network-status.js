@@ -8,29 +8,27 @@ const defaults = {
 };
 
 const getNetworkCheckURL = (pingDomain) => {
-  if (typeof pingDomain === 'string' && pingDomain.trim()) {
-    return `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(pingDomain)}&type=A&_=${Date.now()}`;
-  } else {
+  if (typeof pingDomain !== 'string' || !pingDomain.trim()) {
     throw new Error("Invalid pingDomain parameter");
   }
+
+  return `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(pingDomain)}&type=A&_=${Date.now()}`;
 };
 
-const makeRequest = async (url, timeout = 3350, method = 'GET') => {
-  if (!url || !timeout || !method) throw new Error("Invalid Parameters");
+const makeRequest = async (url, timeout = defaults.timeout, method = defaults.method) => {
+  if (!url) throw new Error("URL is required");
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
     const headers = {
-      'Cache-Control': 'no-cache'
+      'Cache-Control': 'no-cache',
+      ...(url.includes('cloudflare-dns.com/dns-query') && {
+        'Accept': 'application/dns-json',
+        'Content-Type': 'application/dns-json'
+      })
     };
-
-    if (url.includes('cloudflare-dns.com/dns-query')) {
-      headers['Accept'] = 'application/dns-json';
-      headers['Content-Type'] = 'application/dns-json';
-
-    }
 
     const response = await fetch(url, {
       method,
@@ -39,11 +37,7 @@ const makeRequest = async (url, timeout = 3350, method = 'GET') => {
     });
 
     debug(`Response Status Code: ${response.status}`);
-    if (response.ok) {
-      return true;
-    } else {
-      throw new Error(`Request failed with status ${response.status}`);
-    }
+    return response?.ok ? true : false;
 
   } catch (err) {
     debug(`Error for URL ${url}: ${err.message}`);
@@ -53,21 +47,19 @@ const makeRequest = async (url, timeout = 3350, method = 'GET') => {
   }
 };
 
-const checkReachability = async (url, timeout, method) => {
-  return await makeRequest(url, timeout, method);
-};
+const checkReachability = (url, timeout, method) => makeRequest(url, timeout, method);
 
 const checkNetworkStatus = async (options = {}) => {
-  options = { ...defaults, ...options };
+  const config = { ...defaults, ...options };
 
-  const checkURL = getNetworkCheckURL(options.pingDomain);
-  let isReachable = await checkReachability(checkURL, options.timeout, options.method);
+  const primaryURL = getNetworkCheckURL(config.pingDomain);
+  let reachable = await checkReachability(primaryURL, config.timeout, config.method);
 
-  if (!isReachable && options.backUpURL) {
-    isReachable = await checkReachability(options.backUpURL, options.timeout, options.method);
+  if (!reachable && config.backUpURL) {
+    reachable = await checkReachability(config.backUpURL, config.timeout, config.method);
   }
 
-  return isReachable;
+  return reachable;
 };
 
 module.exports = {

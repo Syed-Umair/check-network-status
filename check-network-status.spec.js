@@ -44,7 +44,7 @@ describe('check-network-status module', () => {
     });
 
     it('should throw on missing parameters', async () => {
-      await expect(makeRequest()).rejects.toThrow('Invalid Parameters');
+      await expect(makeRequest()).rejects.toThrow('URL is required');
     });
   });
 
